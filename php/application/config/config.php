@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 // 20201122 DoTQ $config['base_url'] = '';
-$config['base_url'] = 'http://localhost:8000/index.php/';
+$config['base_url'] = 'http://localhost:8000/';
 
 /*
 |--------------------------------------------------------------------------

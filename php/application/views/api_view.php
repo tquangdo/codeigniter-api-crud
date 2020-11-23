@@ -52,18 +52,18 @@
                 </div>
                 <div class="modal-body">
                     <label>Enter First Name</label>
-                    <input type="text" name="first_name" id="first_name" class="form-control" />
+                    <input type="text" name="first_name_fromv" id="first_name_fromv" class="form-control" />
                     <span id="first_name_error" class="text-danger"></span>
                     <br />
                     <label>Enter Last Name</label>
-                    <input type="text" name="last_name" id="last_name" class="form-control" />
+                    <input type="text" name="last_name_fromv" id="last_name_fromv" class="form-control" />
                     <span id="last_name_error" class="text-danger"></span>
                     <br />
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" name="user_id" id="user_id" />
-                    <input type="hidden" name="data_action" id="data_action" value="Insert" />
-                    <input type="submit" name="action" id="action" class="btn btn-success" value="Add" />
+                    <input type="hidden" name="user_id_fromv" id="user_id_fromv" />
+                    <input type="hidden" name="data_action_fromv" id="data_action_fromv" value="InsertFromV" />
+                    <input type="submit" name="label_action" id="label_action" class="btn btn-success" value="Add" />
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -74,94 +74,105 @@
 <script type="text/javascript" language="javascript" >
 $(document).ready(function(){
     
+    // SEL
     function fetch_data()
     {
         $.ajax({
-            // 1) access "http://localhost:8000/index.php/test_api" với param="fetch_all_fromv"
-            // 2) Test_api.php>action(): access "http://localhost:8000/index.php/api"
+            // 1) access "http://localhost:8000/index.php/test_api" với param="FetchAllFromV"
+            // 2) Test_api.php>onActionCRUD(): access "http://localhost:8000/index.php/api"
             // 3) Api.php>index(): call Api_model.php>fetch_all_fromm(): SEL * FROM tbl_sample -> trả về JSON string
             // 4) Test_api.php>action(): JSON string -> PHP array -> trả HTML data về cho Ajax req của api_view.php
-            url:"<?php echo base_url(); ?>test_api/action",
+            url:"<?php echo site_url(); ?>/test_api/onActionCRUD",
             method:"POST",
-            data:{data_action_fromv:'fetch_all_fromv'},
-            success:function(data)
+            data:{data_action_fromv:'FetchAllFromV'},
+            success:function(arg_data)
             {
-                $('tbody').html(data);
+                $('tbody').html(arg_data);
             }
         });
     }
 
     fetch_data();
 
+    // khi click "Add" thì show DLG "userModal" & INS
     $('#add_button').click(function(){
         $('#user_form')[0].reset();
-        $('.modal-title').text("Add User");
-        $('#action').val('Add');
-        $('#data_action').val("Insert");
+        $('.modal-title').text("Add User Title");
+        $('#label_action').val('OK Add');
+        $('#data_action_fromv').val("InsertFromV");
         $('#userModal').modal('show');
+        $('#first_name_error').html('');
+        $('#last_name_error').html('');
     });
 
-    $(document).on('submit', '#user_form', function(event){
+    $(document).on('submit', '#user_form', function(event){ // submit '#user_form' bao gồm INS & UPD
         event.preventDefault();
         $.ajax({
-            url:"<?php echo base_url() . 'test_api/action' ?>",
+            url:"<?php echo site_url(); ?>/test_api/onActionCRUD",
             method:"POST",
             data:$(this).serialize(),
             dataType:"json",
-            success:function(data)
+            success:function(arg_data)
             {
-                if(data.success)
+                if(arg_data.success)
                 {
                     $('#user_form')[0].reset();
                     $('#userModal').modal('hide');
                     fetch_data();
-                    if($('#data_action').val() == "Insert")
+                    if($('#data_action_fromv').val() == "InsertFromV")
                     {
                         $('#success_message').html('<div class="alert alert-success">Data Inserted</div>');
                     }
                 }
-
-                if(data.error)
+                if(arg_data.error)
                 {
-                    $('#first_name_error').html(data.first_name_error);
-                    $('#last_name_error').html(data.last_name_error);
+                    $('#first_name_error').html(arg_data.first_name_error);
+                    $('#last_name_error').html(arg_data.last_name_error);
                 }
             }
         })
     });
 
-    $(document).on('click', '.edit', function(){
+    // UPD
+    $(document).on('click', '.edit', function(){ // click "Edit" (map với name="edit")
         var user_id = $(this).attr('id');
         $.ajax({
-            url:"<?php echo base_url(); ?>test_api/action",
+            url:"<?php echo site_url(); ?>/test_api/onActionCRUD",
             method:"POST",
-            data:{user_id:user_id, data_action:'fetch_single'},
+            // UPD-SEL
+            data:{user_id_fromv:user_id, data_action_fromv:'FetchSingleFromV'},
             dataType:"json",
-            success:function(data)
+            success:function(arg_data)
             {
+                console.log("arg_data: ", arg_data);
+                // KO có if(arg_data.success/error) giống INS vì arg_data chỉ có first/last_name > trả về "undefined" > xử lí die luôn!!!
                 $('#userModal').modal('show');
-                $('#first_name').val(data.first_name);
-                $('#last_name').val(data.last_name);
-                $('.modal-title').text('Edit User');
-                $('#user_id').val(user_id);
-                $('#action').val('Edit');
-                $('#data_action').val('Edit');
+                $('#first_name_error').html('');
+                $('#last_name_error').html('');
+                $('#first_name_fromv').val(arg_data.first_name);
+                $('#last_name_fromv').val(arg_data.last_name);
+                $('.modal-title').text('Edit User Title');
+                $('#user_id_fromv').val(user_id);
+                $('#label_action').val('OK Edit');
+                $('#data_action_fromv').val('EditFromV');
             }
         })
     });
 
-    $(document).on('click', '.delete', function(){
+    // DEL
+    $(document).on('click', '.delete', function(){ // click "Delete" (map với name="delete")
         var user_id = $(this).attr('id');
-        if(confirm("Are you sure you want to delete this?"))
+        var st_name = $(this).attr('value');
+        if(confirm("Are you sure you want to delete " + st_name + "?"))
         {
             $.ajax({
-                url:"<?php echo base_url(); ?>test_api/action",
+                url:"<?php echo site_url(); ?>/test_api/onActionCRUD",
                 method:"POST",
-                data:{user_id:user_id, data_action:'Delete'},
+                data:{user_id_fromv:user_id, data_action_fromv:'DeleteFromV'},
                 dataType:"JSON",
-                success:function(data)
+                success:function(arg_data)
                 {
-                    if(data.success)
+                    if(arg_data.success)
                     {
                         $('#success_message').html('<div class="alert alert-success">Data Deleted</div>');
                         fetch_data();
