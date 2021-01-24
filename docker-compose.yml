@@ -1,10 +1,10 @@
 version: "3.3"
 services:
-  db:
+  db-20210124:
     build:
       context: ./my-mysql-scripts
       dockerfile: Dockerfile
-    container_name: mysql8-dotq
+    container_name: mysql8-20210124
     image: mysql:latest
     command: --default-authentication-plugin=mysql_native_password
     restart: always
@@ -14,14 +14,14 @@ services:
       MYSQL_USER: devuser
       MYSQL_PASSWORD: devpass
     ports:
-      - 3306:3306
-  web-dotq:
+      - 3307:3306
+  web-20210124:
     build:
       context: ./php
       dockerfile: Dockerfile
-    container_name: php74-dotq
+    container_name: php74-20210124
     depends_on:
-      - db
+      - db-20210124
     volumes:
       - ./php:/var/www/html/
     ports:

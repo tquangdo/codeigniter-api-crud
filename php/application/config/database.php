@@ -6,7 +6,7 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'db',
+	'hostname' => 'db-20210124',
 	'username' => 'root',
 	'password' => 'root',
 	'database' => 'test_db',
