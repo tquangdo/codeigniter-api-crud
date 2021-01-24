@@ -10,6 +10,12 @@ RUN apt-get update && apt-get install -y \
     unzip
 RUN docker-php-ext-install zip
 
+# Install intl for CI4
+RUN apt-get install -y libicu-dev
+RUN apt-get update
+RUN docker-php-ext-install intl
+RUN docker-php-ext-configure intl
+
 RUN apt-get update && apt-get upgrade -y && apt-get install -y nano
 RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli \
     && a2enmod headers \
