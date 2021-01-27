@@ -6,10 +6,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    
 </head>
 <body>
-    <div class="container">
+    <div id="id-1" class="container">
         <br />
         <h3 align="center">CRUD REST API in Codeigniter</h3>
         <br />
@@ -17,12 +16,16 @@
             <div class="panel-heading">
                 <div class="row">
                     <div class="col-md-6" align="right">
-                        <button type="button" id="add_button" class="btn btn-info btn-xs">Add</button>
+                        <button type="button" id="add_button" class="btn btn-info btn-xs"
+                        @click="vueShowUserModal=true"
+                        >Add</button>
                     </div>
                 </div>
             </div>
             <div class="panel-body">
-                <span id="success_message"></span>
+                <div class="alert alert-success col-md-6" id="alertMessage" role="alert" v-if="vueSuccessMessage">
+					{{ vueSuccessMessage }}
+				</div>
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
@@ -33,131 +36,166 @@
                         </tr>
                     </thead>
                     <tbody>
-                        
+                        <tr v-for="item_user in vueUsers">
+                            <td>{{item_user.first_name}}</td>
+                            <td>{{item_user.last_name}}</td>
+                            <td>
+                                <button type="button" class="btn btn-warning btn-xs edit" :id="item_user.id"
+                                @click="vueShowUpdUser=true; vueFetchSingleFromV(item_user);"
+                                >
+                                    Edit
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-xs delete" :id="item_user.id" @click="vueFetchSingleFromV(item_user);">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+
+        <!-- INS -->
+        <div id="userModal" v-if="vueShowUserModal" class="modal show">
+            <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Add User</h4>
+                        </div>
+                        <div class="modal-body">
+                            <label>Enter First Name</label>
+                            <input type="text" id="first_name_fromv" class="form-control" v-model="vueNewUser.first_name"/>
+                            <br />
+                            <label>Enter Last Name</label>
+                            <input type="text" id="last_name_fromv" class="form-control" v-model="vueNewUser.last_name"/>
+                            <br />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="label_action" class="btn btn-success"
+                                @click="vueShowUserModal=false; vueInsertFromV();"
+                            >Add</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal"
+                                @click="vueShowUserModal=false"
+                            >Close</button>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+        <!-- UPD -->
+        <div id="userModal" v-if="vueShowUpdUser" class="modal show">
+            <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Edit User</h4>
+                        </div>
+                        <div class="modal-body">
+                            <label>Edit First Name</label>
+                            <input type="text" id="first_name_upd" class="form-control" v-model="vueClickedUser.first_name"/>
+                            <br />
+                            <label>Edit Last Name</label>
+                            <input type="text" id="last_name_upd" class="form-control" v-model="vueClickedUser.last_name"/>
+                            <br />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="label_action" class="btn btn-success"
+                                @click="vueShowUpdUser=false; vueEditFromV();"
+                            >Edit</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal"
+                                @click="vueShowUpdUser=false"
+                            >Close</button>
+                        </div>
+                    </div>
+            </div>
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        var vueId1 = new Vue({
+            el: '#id-1',
+            data: {
+                vueSuccessMessage: "",
+                vueShowUserModal: false,
+                vueShowUpdUser: false,
+                vueUsers: [],
+                vueNewUser: {first_name: "", last_name: ""},
+                vueCurrentUser: {},
+                vueClickedUser: {},
+            },
+            mounted: function() {
+                this.vueFetchAllFromV();
+            },
+            methods:{
+                vueFetchAllFromV(){
+                    axios.get("http://localhost:8000/index.php/api").then(function(response){
+                        if (response.data.error) {
+                            alert(JSON.stringify(response.data));
+                        } else {
+                            vueId1.vueUsers = response.data;
+                        }
+                    })
+                },
+                vueInsertFromV: function () {
+                    var arg_ins = 'first_name_from_test=' + vueId1.vueNewUser.first_name + '&last_name_from_test=' + vueId1.vueNewUser.last_name;
+                    axios.post('http://localhost:8000/index.php/api/onInsert', arg_ins)
+                    .then(function (response) {
+                        vueId1.vueNewUser = {first_name: "", last_name: ""};
+                        var { data } = response;
+                        var {error, first_name_error,last_name_error} = data;
+                        if (error) {
+                            var str_err_msg = "";
+                            if (first_name_error) {
+                                str_err_msg += "\n" + first_name_error;
+                            }
+                            if (last_name_error) {
+                                str_err_msg += "\n" + last_name_error;
+                            }
+                            alert(str_err_msg);
+                        } else {
+                            vueId1.vueSuccessMessage = 'Data Inserted';
+                            vueId1.vueFetchAllFromV();
+                        }
+                    });
+                },
+                vueEditFromV: function () {
+                    var arg_upd = 'id_from_test=' + vueId1.vueClickedUser.id + '&first_name_from_test=' + vueId1.vueClickedUser.first_name + '&last_name_from_test=' + vueId1.vueClickedUser.last_name;
+                    axios.post('http://localhost:8000/index.php/api/onUpdate', arg_upd)
+                    .then(function (response) {
+                        vueId1.vueClickedUser = {};
+                        var { data } = response;
+                        var {error, first_name_error,last_name_error} = data;
+                        if (error) {
+                            var str_err_msg = "";
+                            if (first_name_error) {
+                                str_err_msg += "\n" + first_name_error;
+                            }
+                            if (last_name_error) {
+                                str_err_msg += "\n" + last_name_error;
+                            }
+                            alert(str_err_msg);
+                        } else {
+                            vueId1.vueSuccessMessage = 'Data Updated';
+                        }
+                        vueId1.vueFetchAllFromV();
+                    });
+                },
+                vueFetchSingleFromV(arg_user) {
+                    vueId1.vueClickedUser = arg_user;
+                },
+            }
+        })
+    </script>
 </body>
 </html>
 
-<div id="userModal" class="modal fade">
-    <div class="modal-dialog">
-        <form method="post" id="user_form">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Add User</h4>
-                </div>
-                <div class="modal-body">
-                    <label>Enter First Name</label>
-                    <input type="text" name="first_name_fromv" id="first_name_fromv" class="form-control" />
-                    <span id="first_name_error" class="text-danger"></span>
-                    <br />
-                    <label>Enter Last Name</label>
-                    <input type="text" name="last_name_fromv" id="last_name_fromv" class="form-control" />
-                    <span id="last_name_error" class="text-danger"></span>
-                    <br />
-                </div>
-                <div class="modal-footer">
-                    <input type="hidden" name="user_id_fromv" id="user_id_fromv" />
-                    <input type="hidden" name="data_action_fromv" id="data_action_fromv" value="InsertFromV" />
-                    <input type="submit" name="label_action" id="label_action" class="btn btn-success" value="Add" />
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
 <script type="text/javascript" language="javascript" >
 $(document).ready(function(){
-    
-    // SEL
-    function fetch_data()
-    {
-        $.ajax({
-            // 1) access "http://localhost:8000/index.php/test_api" với param="FetchAllFromV"
-            // 2) Test_api.php>onActionCRUD(): access "http://localhost:8000/index.php/api"
-            // 3) Api.php>index(): call Api_model.php>fetch_all_fromm(): SEL * FROM tbl_sample -> trả về JSON string
-            // 4) Test_api.php>action(): JSON string -> PHP array -> trả HTML data về cho Ajax req của api_view.php
-            url:"<?php echo site_url(); ?>/test_api/onActionCRUD",
-            method:"POST",
-            data:{data_action_fromv:'FetchAllFromV'},
-            success:function(arg_data)
-            {
-                $('tbody').html(arg_data);
-            }
-        });
-    }
-
-    fetch_data();
-
-    // khi click "Add" thì show DLG "userModal" & INS
-    $('#add_button').click(function(){
-        $('#user_form')[0].reset();
-        $('.modal-title').text("Add User Title");
-        $('#label_action').val('OK Add');
-        $('#data_action_fromv').val("InsertFromV");
-        $('#userModal').modal('show');
-        $('#first_name_error').html('');
-        $('#last_name_error').html('');
-    });
-
-    $(document).on('submit', '#user_form', function(event){ // submit '#user_form' bao gồm INS & UPD
-        event.preventDefault();
-        $.ajax({
-            url:"<?php echo site_url(); ?>/test_api/onActionCRUD",
-            method:"POST",
-            data:$(this).serialize(),
-            dataType:"json",
-            success:function(arg_data)
-            {
-                if(arg_data.success)
-                {
-                    $('#user_form')[0].reset();
-                    $('#userModal').modal('hide');
-                    fetch_data();
-                    if($('#data_action_fromv').val() == "InsertFromV")
-                    {
-                        $('#success_message').html('<div class="alert alert-success">Data Inserted</div>');
-                    }
-                }
-                if(arg_data.error)
-                {
-                    $('#first_name_error').html(arg_data.first_name_error);
-                    $('#last_name_error').html(arg_data.last_name_error);
-                }
-            }
-        })
-    });
-
-    // UPD
-    $(document).on('click', '.edit', function(){ // click "Edit" (map với name="edit")
-        var user_id = $(this).attr('id');
-        $.ajax({
-            url:"<?php echo site_url(); ?>/test_api/onActionCRUD",
-            method:"POST",
-            // UPD-SEL
-            data:{user_id_fromv:user_id, data_action_fromv:'FetchSingleFromV'},
-            dataType:"json",
-            success:function(arg_data)
-            {
-                console.log("arg_data: ", arg_data);
-                // KO có if(arg_data.success/error) giống INS vì arg_data chỉ có first/last_name > trả về "undefined" > xử lí die luôn!!!
-                $('#userModal').modal('show');
-                $('#first_name_error').html('');
-                $('#last_name_error').html('');
-                $('#first_name_fromv').val(arg_data.first_name);
-                $('#last_name_fromv').val(arg_data.last_name);
-                $('.modal-title').text('Edit User Title');
-                $('#user_id_fromv').val(user_id);
-                $('#label_action').val('OK Edit');
-                $('#data_action_fromv').val('EditFromV');
-            }
-        })
-    });
 
     // DEL
     $(document).on('click', '.delete', function(){ // click "Delete" (map với name="delete")
