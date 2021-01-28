@@ -40,14 +40,14 @@
                             <td>{{item_user.first_name}}</td>
                             <td>{{item_user.last_name}}</td>
                             <td>
-                                <button type="button" class="btn btn-warning btn-xs edit" :id="item_user.id"
+                                <button type="button" class="btn btn-warning" :id="item_user.id"
                                 @click="vueShowUpdUser=true; vueFetchSingleFromV(item_user);"
                                 >
                                     Edit
                                 </button>
                             </td>
                             <td>
-                                <button type="button" class="btn btn-danger btn-xs delete" :id="item_user.id" @click="vueFetchSingleFromV(item_user);">
+                                <button type="button" class="btn btn-danger" :id="item_user.id" @click="vueFetchSingleFromV(item_user); vueDeleteFromV();">
                                     Delete
                                 </button>
                             </td>
@@ -141,7 +141,7 @@
                         }
                     })
                 },
-                vueInsertFromV: function () {
+                vueInsertFromV() {
                     var arg_ins = 'first_name_from_test=' + vueId1.vueNewUser.first_name + '&last_name_from_test=' + vueId1.vueNewUser.last_name;
                     axios.post('http://localhost:8000/index.php/api/onInsert', arg_ins)
                     .then(function (response) {
@@ -163,7 +163,7 @@
                         }
                     });
                 },
-                vueEditFromV: function () {
+                vueEditFromV() {
                     var arg_upd = 'id_from_test=' + vueId1.vueClickedUser.id + '&first_name_from_test=' + vueId1.vueClickedUser.first_name + '&last_name_from_test=' + vueId1.vueClickedUser.last_name;
                     axios.post('http://localhost:8000/index.php/api/onUpdate', arg_upd)
                     .then(function (response) {
@@ -185,6 +185,24 @@
                         vueId1.vueFetchAllFromV();
                     });
                 },
+                vueDeleteFromV() {
+                    var {id, first_name, last_name} = vueId1.vueClickedUser;
+                    if(confirm("Are you sure you want to delete " + first_name + " " + last_name + "?")){
+                        var arg_del = 'id_from_test=' + id;
+                        axios.post('http://localhost:8000/index.php/api/onDelete', arg_del)
+                        .then(function (response) {
+                            vueId1.vueClickedUser = {};
+                            var { data } = response;
+                            var {error} = data;
+                            if (error) {
+                                alert(JSON.stringify(data));
+                            } else {
+                                vueId1.vueSuccessMessage = 'Data Deleted';
+                                vueId1.vueFetchAllFromV();
+                            }
+                        });
+                    }
+                },
                 vueFetchSingleFromV(arg_user) {
                     vueId1.vueClickedUser = arg_user;
                 },
@@ -193,32 +211,3 @@
     </script>
 </body>
 </html>
-
-<script type="text/javascript" language="javascript" >
-$(document).ready(function(){
-
-    // DEL
-    $(document).on('click', '.delete', function(){ // click "Delete" (map với name="delete")
-        var user_id = $(this).attr('id');
-        var st_name = $(this).attr('value');
-        if(confirm("Are you sure you want to delete " + st_name + "?"))
-        {
-            $.ajax({
-                url:"<?php echo site_url(); ?>/test_api/onActionCRUD",
-                method:"POST",
-                data:{user_id_fromv:user_id, data_action_fromv:'DeleteFromV'},
-                dataType:"JSON",
-                success:function(arg_data)
-                {
-                    if(arg_data.success)
-                    {
-                        $('#success_message').html('<div class="alert alert-success">Data Deleted</div>');
-                        fetch_data();
-                    }
-                }
-            })
-        }
-    });
-    
-});
-</script>
