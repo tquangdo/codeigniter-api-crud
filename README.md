@@ -4,4 +4,4 @@
 # Running local
  > project% docker-compose up -d --build
 
-access "http://localhost:8000/index.php/test_api"
+access "http://localhost:8000"
