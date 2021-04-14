@@ -23,8 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-// 20201122 DoTQ $config['base_url'] = '';
-$config['base_url'] = 'http://localhost:8000/';
+$config['base_url'] = 'http://localhost:8000';
 
 /*
 |--------------------------------------------------------------------------
@@ -36,7 +35,8 @@ $config['base_url'] = 'http://localhost:8000/';
 | variable so that it is blank.
 |
 */
-$config['index_page'] = 'index.php';
+// $config['index_page'] = 'index.php';
+$config['index_page'] = '';
 
 /*
 |--------------------------------------------------------------------------

@@ -114,9 +114,95 @@
         </div>
     </div>
 
+    <div class="container" id="uploadApp">
+        <br />
+        <h3 align="center">How to upload file using Vue.js with PHP</h3>
+        <br />
+        <div v-if="vueSuccessAlert" class="alert alert-success alert-dismissible">
+            <a href="#" class="close" aria-label="close" @click="vueSuccessAlert=false">&times;</a>
+            {{ vueUpSuccessMsg }}
+        </div>
+
+        <div v-if="vueErrorAlert" class="alert alert-danger alert-dismissible">
+            <a href="#" class="close" aria-label="close" @click="vueErrorAlert=false">&times;</a>
+            {{ vueUpErrMsg }}
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+            <div class="row">
+            <div class="col-md-6">
+            <h3 class="panel-title">Upload File</h3>
+            </div>
+            <div class="col-md-6" align="right">
+            
+            </div>
+            </div>
+            </div>
+            <div class="panel-body">
+            <div class="row">
+            <div class="col-md-4">
+            <label>Select Image</label>
+            </div>
+            <div class="col-md-4">
+            <input type="file" ref="file" />
+            </div>
+            <div class="col-md-4">
+            <button type="button" @click="uploadImage" class="btn btn-primary">Upload Image</button>
+            </div>
+            </div>
+            <br />
+            <br />
+            <div v-html="vueUploadedImage" align="center"></div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        var vueUploadApp = new Vue({
+            el:'#uploadApp',
+            data:{
+                vueUpSuccessMsg:'',
+                vueUpErrMsg:'',
+                vueFile:'',
+                vueSuccessAlert:false,
+                vueErrorAlert:false,
+                vueUploadedImage:"<img src='http://via.placeholder.com/300' class='img-thumbnail' />",
+            },
+            methods:{
+                uploadImage:function(){
+                    vueUploadApp.vueFile = vueUploadApp.$refs.file.files[0];
+                    var formData = new FormData();
+                    formData.append('file', vueUploadApp.vueFile);
+                    axios.post('http://localhost:8000/index.php/api/onUploadFile', formData, {
+                        header:{
+                            'Content-Type' : 'multipart/form-data'
+                        }
+                    }).then(function(response){
+                        if(response.data.image == '')
+                        {
+                            vueUploadApp.vueErrorAlert = true;
+                            vueUploadApp.vueSuccessAlert = false;
+                            vueUploadApp.vueUpErrMsg = response.data.message;
+                            vueUploadApp.vueUpSuccessMsg = '';
+                            vueUploadApp.vueUploadedImage = "<img src='http://via.placeholder.com/300' class='img-thumbnail' />";
+                        }
+                        else
+                        {
+                            vueUploadApp.vueErrorAlert = false;
+                            vueUploadApp.vueSuccessAlert = true;
+                            vueUploadApp.vueUpErrMsg = '';
+                            vueUploadApp.vueUpSuccessMsg = response.data.message;
+                            var image_html = "<img src='"+response.data.image+"' class='img-thumbnail' width='600' />";
+                            vueUploadApp.vueUploadedImage = image_html;
+                            vueUploadApp.$refs.file.value = '';
+                        }
+                    });
+                }
+            },
+        });
+
         var vueId1 = new Vue({
             el: '#id-1',
             data: {
@@ -133,7 +219,7 @@
             },
             methods:{
                 vueFetchAllFromV(){
-                    axios.get("http://localhost:8000/index.php/api").then(function(response){
+                    axios.get("http://localhost:8000/index.php/api/onSelectAll").then(function(response){
                         if (response.data.error) {
                             alert(JSON.stringify(response.data));
                         } else {

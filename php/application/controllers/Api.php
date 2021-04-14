@@ -13,6 +13,55 @@ class Api extends CI_Controller {
 
 	function index()
 	{
+        $this->load->view('api_view'); // KO có dòng này thì link access on browser phải là "http://localhost:8000/index.php/test_api"
+	}
+	
+	function onUploadFile()
+	{
+		// BASEPATH: ~~~~~~~~~~~/var/www/html/system/
+		// APPPATH: ~~~~~~~~~~~/var/www/html/application/
+		// __DIR__: ~~~~~~~~~~~/var/www/html/application/controllers
+		// echo base_url(); // http://example.com/website
+		// echo site_url(); // http://example.com/website/index.php
+		$image = '';
+		if(isset($_FILES['file']['name']))
+		{
+			$image_name = $_FILES['file']['name'];
+			$valid_extensions = array("jpg","jpeg","png");
+			$extension = pathinfo($image_name, PATHINFO_EXTENSION);
+			if(in_array($extension, $valid_extensions))
+			{
+				$upload_relative_path = 'upload/' . time() . '.' . $extension;
+				$upload_path = APPPATH. '../' . $upload_relative_path;
+				// echo "~~~~~~~~~~~filename: ~~~~~~~~~~~" . json_encode($_FILES['file']['tmp_name']) . "\xA"; ---> "\/tmp\/phpzkelkt"
+				if(move_uploaded_file($_FILES['file']['tmp_name'], $upload_path))
+				{
+					$message = 'Image Uploaded';
+					$image = $upload_relative_path;
+				}
+				else
+				{
+					$message = 'There is an error while uploading image';
+				}
+			}
+			else
+			{
+				$message = 'Only .jpg, .jpeg and .png Image allowed to upload';
+			}
+		}
+		else
+		{
+			$message = 'Please select 1 image';
+		}
+		$output = array(
+			'message'  => $message,
+			'image'   => $image
+		);
+		echo json_encode($output);
+	}
+	
+	function onSelectAll()
+	{
 		$data = $this->api_model->FetchAllApiM();
 		echo json_encode($data->result_array()); // PHP array -> JSON string
 	}
