@@ -12,7 +12,9 @@ composer.lock
 package-lock.json
 
 php/vendor/
-php/upload/*
+php/upload/*.png
+php/upload/*.jpg
+php/upload/*.jpeg
 .vscode
 .vscode/*
 
