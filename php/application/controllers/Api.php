@@ -60,20 +60,29 @@ class Api extends CI_Controller {
 		echo json_encode($output);
 	}
 	
-	function onDynamicSelBox()
+	function onSearchRealtime()
 	{
 		$received_data = json_decode(file_get_contents("php://input"));
-		if ($received_data->request_for == 'country') {
-			$data = $this->api_model->OnSelAllCountry();
-		} else {
-			if ($received_data->request_for == 'state') {
-				$data = $this->api_model->OnSelState($received_data->country_id);
-			} else {
-				$data = $this->api_model->OnSelCity($received_data->state_id);
-			}
-		}
+		$query = $received_data->query;
+		$data = $this->api_model->FetchAllApiM($query);
 		echo json_encode($data->result_array()); // PHP array -> JSON string
 	}
+	
+	// function onDynamicSelBox()
+	// {
+	// 	$received_data = json_decode(file_get_contents("php://input"));
+	// 	$request_for = $received_data->request_for;
+	// 	if ($request_for == 'country') {
+	// 		$data = $this->api_model->OnSelAllCountry();
+	// 	} else {
+	// 		if ($request_for == 'state') {
+	// 			$data = $this->api_model->OnSelState($received_data->country_id);
+	// 		} else {
+	// 			$data = $this->api_model->OnSelCity($received_data->state_id);
+	// 		}
+	// 	}
+	// 	echo json_encode($data->result_array()); // PHP array -> JSON string
+	// }
 	
 	function onSelectAll()
 	{

@@ -114,6 +114,41 @@
         </div>
     </div>
 
+    <div class="container" id="searchApp">
+        <br />
+        <h3 align="center">Vue.js Live Data Search with PHP & Mysql</h3>
+        <br />
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-9">
+                        <h3 class="panel-title">Sample Data</h3>
+                    </div>
+                    <div class="col-md-3" align="right">
+                        <input type="text" class="form-control input-sm" placeholder="Search Data" v-model="vueQuery" @keyup="fetchData()" />
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                        </tr>
+                        <tr v-for="row in vueAllData">
+                            <td>{{ row.first_name }}</td>
+                            <td>{{ row.last_name }}</td>
+                        </tr>
+                        <tr v-if="vueNodata">
+                            <td colspan="2" align="center">No Data Found</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container" id="uploadApp">
         <br />
         <h3 align="center">How to upload file using Vue.js with PHP</h3>
@@ -157,7 +192,7 @@
         </div>
     </div>
 
-    <div class="container" id="dynamicApp">
+    <!-- <div class="container" id="dynamicApp">
         <br />
         <h3 align="center">Dynamic Dependent Select Box in Vue.js using PHP</h3>
         <br />
@@ -187,11 +222,41 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        var vueSearchApp = new Vue({
+            el:'#searchApp',
+            data:{
+                vueAllData:'',
+                vueQuery:'',
+                vueNodata:false
+            },
+            methods: {
+                fetchData:function(){
+                    axios.post('http://localhost:8000/index.php/api/onSearchRealtime', {
+                        query:this.vueQuery
+                    }).then(function(response){
+                        if(response.data.length > 0)
+                        {
+                            vueSearchApp.vueAllData = response.data;
+                            vueSearchApp.vueNodata = false;
+                        }
+                        else
+                        {
+                            vueSearchApp.vueAllData = '';
+                            vueSearchApp.vueNodata = true;
+                        }
+                    });
+                }
+            },
+            created:function(){
+                this.fetchData();
+            }
+        });
+
         var vueUploadApp = new Vue({
             el:'#uploadApp',
             data:{
@@ -204,43 +269,42 @@
             },
             methods:{
                 uploadImage:function(){
-                    // vueUploadApp.vueFile = vueUploadApp.$refs.file.files[0];
-                    // var formData = new FormData();
-                    // ~~~~~ Github ~~~~~
-                    // formData.append('file', vueUploadApp.vueFile);
-                    // axios.post('http://localhost:8000/index.php/api/onUploadFile', formData, {
-                    //     header:{
-                    //         'Content-Type' : 'multipart/form-data'
-                    //     }
+                    vueUploadApp.vueFile = vueUploadApp.$refs.file.files[0];
+                    var formData = new FormData();
+                    formData.append('file', vueUploadApp.vueFile);
+                    axios.post('http://localhost:8000/index.php/api/onUploadFile', formData, {
+                        header:{
+                            'Content-Type' : 'multipart/form-data'
+                        }
 
                     // ~~~~~ SkyPDF ~~~~~
-                    axios.get("http://skypdf.skycom.jp/SKYCOM/V1/SKYPDFWebAPI/4e89bace-2635-4216-80f4-e6a8c5af394e/document?Method=GetPSize").then(function(response){
+                    // axios.get("http://skypdf.skycom.jp/SKYCOM/V1/SKYPDFWebAPI/4e89bace-2635-4216-80f4-e6a8c5af394e/document?Method=GetPSize").then(function(response){
                     // formData.append('SaveFilename', vueUploadApp.vueFile);
                     // axios.post('http://skypdf.skycom.jp/SKYCOM/V1/SKYPDFWebAPI/', formData, {
                     //     header:{
                     //         'Content-Type' : 'multipart/form-data'
                     //     }
-                    // }).then(function(response){
-                        console.log('response: ',response)
-                        // ~~~~~ Github ~~~~~
-                        // if(response.data.image == '')
-                        // {
-                        //     vueUploadApp.vueErrorAlert = true;
-                        //     vueUploadApp.vueSuccessAlert = false;
-                        //     vueUploadApp.vueUpErrMsg = response.data.message;
-                        //     vueUploadApp.vueUpSuccessMsg = '';
-                        //     vueUploadApp.vueUploadedImage = "<img src='http://via.placeholder.com/300' class='img-thumbnail' />";
-                        // }
-                        // else
-                        // {
-                        //     vueUploadApp.vueErrorAlert = false;
-                        //     vueUploadApp.vueSuccessAlert = true;
-                        //     vueUploadApp.vueUpErrMsg = '';
-                        //     vueUploadApp.vueUpSuccessMsg = response.data.message;
-                        //     var image_html = "<img src='"+response.data.image+"' class='img-thumbnail' width='600' />";
-                        //     vueUploadApp.vueUploadedImage = image_html;
-                        //     vueUploadApp.$refs.file.value = '';
-                        // }
+                    // ~~~~~ SkyPDF ~~~~~
+
+                    }).then(function(response){
+                        if(response.data.image == '')
+                        {
+                            vueUploadApp.vueErrorAlert = true;
+                            vueUploadApp.vueSuccessAlert = false;
+                            vueUploadApp.vueUpErrMsg = response.data.message;
+                            vueUploadApp.vueUpSuccessMsg = '';
+                            vueUploadApp.vueUploadedImage = "<img src='http://via.placeholder.com/300' class='img-thumbnail' />";
+                        }
+                        else
+                        {
+                            vueUploadApp.vueErrorAlert = false;
+                            vueUploadApp.vueSuccessAlert = true;
+                            vueUploadApp.vueUpErrMsg = '';
+                            vueUploadApp.vueUpSuccessMsg = response.data.message;
+                            var image_html = "<img src='"+response.data.image+"' class='img-thumbnail' width='600' />";
+                            vueUploadApp.vueUploadedImage = image_html;
+                            vueUploadApp.$refs.file.value = '';
+                        }
                     });
                 }
             },
@@ -338,53 +402,53 @@
             }
         })
 
-        var vueDynamicApp = new Vue({
-            el:'#dynamicApp',
-            data:{
-                vue_select_country:'',
-                vue_country_data:'',
-                vue_select_state:'',
-                vue_state_data:'',
-                vue_select_city:'',
-                vue_city_data:''
-            },
-            methods:{
-                fetchCountry:function(){
-                    axios.post('http://localhost:8000/index.php/api/onDynamicSelBox', {
-                        request_for:'country'
-                    }).then(function(response){
-                        vueDynamicApp.vue_country_data = response.data;
-                        vueDynamicApp.vue_select_state = '';
-                        vueDynamicApp.vue_state_data = '';
-                        vueDynamicApp.vue_select_city = '';
-                        vueDynamicApp.vue_city_data = '';
-                    });
-                },
-                fetchState:function(){
-                    axios.post('http://localhost:8000/index.php/api/onDynamicSelBox', {
-                        request_for:'state',
-                        country_id:this.vue_select_country
-                    }).then(function(response){
-                        vueDynamicApp.vue_state_data = response.data;
-                        vueDynamicApp.vue_select_state = '';
-                        vueDynamicApp.vue_select_city = '';
-                        vueDynamicApp.vue_city_data = '';
-                    });
-                },
-                fetchCity:function(){
-                    axios.post('http://localhost:8000/index.php/api/onDynamicSelBox', {
-                        request_for:'city', 
-                        state_id:this.vue_select_state
-                    }).then(function(response){
-                        vueDynamicApp.vue_city_data = response.data;
-                        vueDynamicApp.vue_select_city = '';
-                    });
-                }
-            },
-            created:function(){
-                this.fetchCountry();
-            }
-        });
+        // var vueDynamicApp = new Vue({
+        //     el:'#dynamicApp',
+        //     data:{
+        //         vue_select_country:'',
+        //         vue_country_data:'',
+        //         vue_select_state:'',
+        //         vue_state_data:'',
+        //         vue_select_city:'',
+        //         vue_city_data:''
+        //     },
+        //     methods:{
+        //         fetchCountry:function(){
+        //             axios.post('http://localhost:8000/index.php/api/onDynamicSelBox', {
+        //                 request_for:'country'
+        //             }).then(function(response){
+        //                 vueDynamicApp.vue_country_data = response.data;
+        //                 vueDynamicApp.vue_select_state = '';
+        //                 vueDynamicApp.vue_state_data = '';
+        //                 vueDynamicApp.vue_select_city = '';
+        //                 vueDynamicApp.vue_city_data = '';
+        //             });
+        //         },
+        //         fetchState:function(){
+        //             axios.post('http://localhost:8000/index.php/api/onDynamicSelBox', {
+        //                 request_for:'state',
+        //                 country_id:this.vue_select_country
+        //             }).then(function(response){
+        //                 vueDynamicApp.vue_state_data = response.data;
+        //                 vueDynamicApp.vue_select_state = '';
+        //                 vueDynamicApp.vue_select_city = '';
+        //                 vueDynamicApp.vue_city_data = '';
+        //             });
+        //         },
+        //         fetchCity:function(){
+        //             axios.post('http://localhost:8000/index.php/api/onDynamicSelBox', {
+        //                 request_for:'city', 
+        //                 state_id:this.vue_select_state
+        //             }).then(function(response){
+        //                 vueDynamicApp.vue_city_data = response.data;
+        //                 vueDynamicApp.vue_select_city = '';
+        //             });
+        //         }
+        //     },
+        //     created:function(){
+        //         this.fetchCountry();
+        //     }
+        // });
     </script>
 </body>
 </html>

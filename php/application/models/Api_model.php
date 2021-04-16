@@ -18,7 +18,11 @@ class Api_model extends CI_Model
 		return $this->db->get('city');
 	}
 
-	function FetchAllApiM(){
+	function FetchAllApiM($arg_query = ''){
+		if ($arg_query != '') {
+			$where = '(first_name like "%' . $arg_query . '%" OR last_name like "%' . $arg_query . '%")';
+       		$this->db->where($where);
+		}
 		$this->db->order_by('id', 'DESC');
 		return $this->db->get('tbl_sample');
 	}
