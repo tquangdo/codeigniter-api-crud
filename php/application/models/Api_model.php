@@ -1,6 +1,23 @@
 <?php
 class Api_model extends CI_Model
 {
+	function OnSelAllCountry(){
+		$this->db->order_by('country_name', 'ASC');
+		return $this->db->get('country');
+	}
+
+	function OnSelState($arg_country_id){
+		$this->db->where("country_id", $arg_country_id);
+		$this->db->order_by('state_name', 'ASC');
+		return $this->db->get('state');
+	}
+
+	function OnSelCity($arg_state_id){
+		$this->db->where("state_id", $arg_state_id);
+		$this->db->order_by('city_name', 'ASC');
+		return $this->db->get('city');
+	}
+
 	function FetchAllApiM(){
 		$this->db->order_by('id', 'DESC');
 		return $this->db->get('tbl_sample');
