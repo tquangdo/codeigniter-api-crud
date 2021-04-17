@@ -14,7 +14,8 @@ DROP TABLE IF EXISTS `tbl_sample`;
 CREATE TABLE `tbl_sample` (
   `id` int(11) NOT NULL,
   `first_name` varchar(250) NOT NULL,
-  `last_name` varchar(250) NOT NULL
+  `last_name` varchar(250) NOT NULL,
+  `email` varchar(250)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --

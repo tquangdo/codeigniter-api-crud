@@ -36,6 +36,13 @@ class Api_model extends CI_Model
 		}
 	}
 
+	function onSelWhereMailCond($arg_mail)
+	{
+		$this->db->where("email", $arg_mail);
+		$query = $this->db->get('tbl_sample');
+		return $query->result_array();
+	}
+
 	function FetchSingleApiM($arg_user_id)
 	{
 		$this->db->where("id", $arg_user_id);
@@ -63,5 +70,3 @@ class Api_model extends CI_Model
 		}
 	}
 }
-
-?>
