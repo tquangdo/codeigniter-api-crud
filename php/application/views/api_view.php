@@ -121,11 +121,14 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <div class="row">
-                    <div class="col-md-9">
-                        <h3 class="panel-title">Sample Data</h3>
+                    <div class="col-md-6">
+                        <auto-complete></auto-complete>
                     </div>
-                    <div class="col-md-3" align="right">
-                        <input type="text" class="form-control input-sm" placeholder="Search Data" v-model="vueQuery" @keyup="fetchData()" />
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control input-sm" placeholder="Filter by firstname..." v-model="vueQueryFilter" @keyup="onFetchData()" />
                     </div>
                 </div>
             </div>
@@ -229,17 +232,50 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        Vue.component('auto-complete', {
+            template: `
+                <div>
+                <input type="text" placeholder="Auto search by enter firstname..." v-model="vQueryAutoSearch" @keyup="onGetData()" autocomplete="off" class="form-control input-lg" />
+                <div class="panel-footer" v-if="v_search_data.length">
+                    <ul class="list-group">
+                    <a href="#" class="list-group-item" v-for="item_data in v_search_data" @click="onGetName(item_data.first_name)">{{ item_data.first_name }}</a>
+                    </ul>
+                </div>
+                </div>
+                `,
+            data: function() {
+                return {
+                    vQueryAutoSearch: '',
+                    v_search_data: []
+                }
+            },
+            methods: {
+                onGetData: function() {
+                    this.v_search_data = [];
+                    axios.post('http://localhost:8000/index.php/api/onSearchRealtime', {
+                        query: this.vQueryAutoSearch
+                    }).then(response => {
+                        this.v_search_data = response.data;
+                    });
+                },
+                onGetName: function(name) {
+                    this.vQueryAutoSearch = name;
+                    this.v_search_data = [];
+                }
+            }
+        });
+
         var vueSearchApp = new Vue({
             el: '#searchApp',
             data: {
                 vueAllData: '',
-                vueQuery: '',
+                vueQueryFilter: '',
                 vueNodata: false
             },
             methods: {
-                fetchData: function() {
+                onFetchData: function() {
                     axios.post('http://localhost:8000/index.php/api/onSearchRealtime', {
-                        query: this.vueQuery
+                        query: this.vueQueryFilter
                     }).then(function(response) {
                         if (response.data.length > 0) {
                             vueSearchApp.vueAllData = response.data;
@@ -252,7 +288,7 @@
                 }
             },
             created: function() {
-                this.fetchData();
+                this.onFetchData();
             }
         });
 
