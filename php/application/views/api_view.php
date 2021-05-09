@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <div id="id-1" class="container">
+    <div id="id-mainflow" class="container">
         <br />
         <h3 align="center">CRUD REST API in Codeigniter</h3>
         <br />
@@ -343,7 +343,7 @@
         });
 
         var vueId1 = new Vue({
-            el: '#id-1',
+            el: '#id-mainflow',
             data: {
                 vueSuccessMessage: "",
                 vueShowUserModal: false,
