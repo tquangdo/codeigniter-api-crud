@@ -21,3 +21,4 @@
 ## deploy local
 1. `project% docker-compose up -d --build`
 2. access browser `http://localhost:8000`
+>(note) in screenshot, `http://localhost:8000/index.php/test_api` is outdated, please ignore it!
