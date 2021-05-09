@@ -11,7 +11,7 @@
 => `Vue.js Live Data Search with PHP & Mysql`
 3. `#uploadApp`
 => `How to upload file using Vue.js with PHP`
-4. `#dynamicSelBox` (NO screenshot + cmt out)
+4. (NO screenshot + cmt out) `#dynamicSelBox`
 => `Dynamic Dependent Select Box in Vue.js using PHP`
 
 *********
@@ -19,6 +19,5 @@
 *********
 
 ## deploy local
- > project% docker-compose up -d --build
-
-access "http://localhost:8000"
+1. project% docker-compose up -d --build
+2. access browser `http://localhost:8000`
